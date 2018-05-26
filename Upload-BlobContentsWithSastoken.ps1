@@ -35,7 +35,7 @@ if (!(Get-Module -ListAvailable -Name AzureRM)) {
 
 # Check module. If module don't exist, import module.
 if (!(Get-Module -Name AzureRM)) {
-  Write-Host "AzureRM isn't installed. Start importing AzureRM"
+  Write-Host "AzureRM isn't imported. Start importing AzureRM"
   Import-Module -Name AzureRM
 }
 
