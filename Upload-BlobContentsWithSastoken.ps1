@@ -24,6 +24,8 @@ Param(
   [parameter(mandatory = $true)][String]$targetDir
 )
 
+$ErrorActionPreference = "stop"
+
 # Check module & install module.
 if (!(Get-Module -ListAvailable -Name AzureRM)) {
   Write-Host "Please install AzureRM. https://docs.microsoft.com/ja-jp/powershell/azure/install-azurerm-ps#step-2-install-azure-powershell"
@@ -36,10 +38,11 @@ if (!(Get-Module -Name AzureRM)) {
 }
 
 # Login if you don't login.
-$content = Get-AzureRmContext
-if (!($content.Account)) {
-  Write-Output "You must login to Azure."
-  Login-AzureRmAccount
+Try {
+    $content = Get-AzureRmContext
+} catch {
+    Write-Output "You must login to Azure."
+    Login-AzureRmAccount
 }
 
 $storageAccount = Get-AzureRmStorageAccount | Select-Object ResourceGroupName,StorageAccountName,AccountType | Out-GridView -PassThru 
@@ -48,7 +51,7 @@ $containerName = (Get-date).ToString("yyyy-MMdd-HHmm")
 
 # Create container and SAS token to share files.
 $null = New-AzureStorageContainer -Name $containerName -Context $ctx -Permission Off
-$sasToken = New-AzureStorageContainerSASToken -Container $containerName -Protocol HttpsOnly -Permission r -ExpiryTime (Get-Date).AddDays(3) -Context $ctx 
+$sasToken = New-AzureStorageContainerSASToken -Container $containerName -Permission r -ExpiryTime (Get-Date).AddDays(3) -Context $ctx 
 
 # Upload all files which is in target dir.
 Get-ChildItem $targetDir | ForEach-Object {
